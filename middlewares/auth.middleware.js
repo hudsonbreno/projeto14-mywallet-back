@@ -6,7 +6,7 @@ export async function authValidation(req, res, next){
     if(!token) return res.sendStatus(401)
 
     try{
-        const sessao = await db.collection("sessoes").findOne({token})
+        const sessao = await db.collection("sessoes").findOne({token:token})
         if(!sessao) return res.sendStatus(401)
         
         res.locals.sessao = sessao

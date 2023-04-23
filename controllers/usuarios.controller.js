@@ -9,6 +9,8 @@ export async function signup(req, res){
         const conflito = await db.collection("usuarios").findOne({email: email})
         if (conflito) return res.status(409).send("E-mail já cadastrado")
 
+        if(password != isPassword) return res.status(422).send("As duas senhas estão diferentes")
+
         const hash = bcrypt.hashSync(password, 10)
         
         const cadastrar = await db.collection("usuarios").insertOne({ nome,email,password:hash }) 
@@ -24,14 +26,6 @@ export async function signup(req, res){
 export async function signin(req, res){
     try{
         const { email, password} = req. body
-
-        const loginSchema = joi.object({
-            email: joi.string().email().required(),
-            password: joi.string().min(3).required()
-        })
-
-        const validar = loginSchema.validate(req.body)
-        if(!validar) return res.status(422).send("Formato errado")
 
         const conferir = await db.collection("usuarios").findOne({email})
         if(conferir.length==0) return res.status(422).send("Email não cadastrado")
