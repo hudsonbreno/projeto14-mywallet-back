@@ -1,26 +1,48 @@
 import { db } from "../database/database.connection.js"
-import { ObjectId } from "mongodb"
 
 export async function NovaTransacao(req, res){
-    const { authorization } = req.headers
-    const token = req.body
-    const tipo = req.params
+
+    const { tipo } = req.params
+    const { valor, descricao } = req.body
+
+    try{
+        if(tipo === "entrada"){
+            await db.collection("transacoes").insertOne({
+                valor,
+                descricao,
+                tipo,
+                userId: res.locals.sessao.userId
+            })
+            return res.send("Criado entrada").status(200)
+        }
+        if(tipo === "saida"){
+            await db.collection("transacoes").insertOne({
+                valor, 
+                descricao,
+                tipo,
+                userId: res.locals.sessao.userId
+            })
+            return res.send("Criado saida").status(200)
+        }
+
+        res.sendStatus(422)
+    }
+    catch(err){
+        res.status(500).send(err.message)
+    }
+
 }
-// app.post("/nova-transacao/:tipo", async(req, res)=>{
 
 export async function Home(req, res){
-    const { authorization } = req.headers
-    const token = authorization?.replace("Bearer ", "")
 
-    if (!token) return res.sendStatus(401)
+    try{
+        const user = await db.collection("usuarios").findOne({_id: res.locals.sessao.userId})
+        delete user.password
 
-    const sessoes = await db.collection("sessoes").findOne({token})
-    if(!sessoes) return res.sendStatus(401)
-
-    const user = await db.collection("usuarios").findOne({_id: new ObjectId(sessoes.userId)})
-    if(!user) return res.sendStatus(401)
-
-    delete user.password
-    res.status(200).send(user)
+        const consulta = await db.collection("transacoes").find({userId: user._id}).toArray()
+        res.status(200).send(consulta)
+    }
+    catch(err){
+        res.send(err.message).status(500)
+    }
 }
-//app.get("/home", async(req,res)=>{
