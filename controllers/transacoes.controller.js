@@ -33,12 +33,11 @@ export async function NovaTransacao(req, res){
 
 }
 
-export async function Home(req, res){
-
+export async function home(req, res){
     try{
+
         const user = await db.collection("usuarios").findOne({_id: res.locals.sessao.userId})
         delete user.password
-
         const consulta = await db.collection("transacoes").find({userId: user._id}).toArray()
         res.status(200).send(consulta)
     }
