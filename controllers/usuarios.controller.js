@@ -18,7 +18,6 @@ export async function signup(req, res){
         res.sendStatus(201)
     }
     catch(err){
-        console.log("aqui")
         res.status(500).send(err.message)
     }
 }

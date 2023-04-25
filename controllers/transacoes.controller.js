@@ -1,13 +1,17 @@
 import { db } from "../database/database.connection.js"
+import dayjs from "dayjs"
 
 export async function NovaTransacao(req, res){
 
     const { tipo } = req.params
     const { valor, descricao } = req.body
+    const dia = dayjs()
+    const DiaDeHoje = dia.format("DD/MM")
 
     try{
         if(tipo === "entrada"){
             await db.collection("transacoes").insertOne({
+                dia: DiaDeHoje,
                 valor,
                 descricao,
                 tipo,
@@ -17,6 +21,7 @@ export async function NovaTransacao(req, res){
         }
         if(tipo === "saida"){
             await db.collection("transacoes").insertOne({
+                dia:DiaDeHoje,
                 valor, 
                 descricao,
                 tipo,
